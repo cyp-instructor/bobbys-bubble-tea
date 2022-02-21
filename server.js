@@ -4,17 +4,19 @@
 // init project
 const express = require("express");
 const bodyParser = require("body-parser");
+const expressLayouts = require('express-ejs-layouts')
+
 const app = express();
 const fs = require("fs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(expressLayouts);
 
-// we've started you off with Express,
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
+app.set('layout', './layouts/main')
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static("public"));
-app.set('view engine', 'hbs');
+app.set('view engine', 'ejs');
 
 // init sqlite db
 const dbFile = "./.data/sqlite.db";
@@ -68,16 +70,9 @@ app.get("/", (request, response) => {
   response.sendFile(`${__dirname}/views/index.html`);
 });
 
-// endpoint to get all the dreams in the database
-app.get("/getDreams", (request, response) => {
-  db.all("SELECT * from Dreams", (err, rows) => {
-    response.send(JSON.stringify(rows));
-  });
-});
-
 app.get("/products", (request, response) => {
-  db.each("SELECT * from Products", (err, row) => {
-    response.sendFile(`${__dirname}/views/products.html`, )
+  db.all("SELECT * from Products", (err, rows) => {
+    response.render(`${__dirname}/views/products.hbs`, { products: JSON.stringify(rows) })
   })
 })
 
