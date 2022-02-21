@@ -23,14 +23,28 @@ const db = new sqlite3.Database(dbFile);
 
 function createUsers() {
   db.run(
-      "CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, email varchar(255) UNIQUE, password varchar(255))"
+      "CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE, password TEXT, name text)"
     );
   console.log("New table Users created!");
 
   // insert default users
   db.serialize(() => {
     db.run(
-      'INSERT INTO Users VALUES ()'
+      'INSERT INTO Users (email, password, name) VALUES ("bobby@bbb.com", "OrfgOhooyrf", "Bobby Botten"), ("augustus_gloop@gmail.com", "VJnagVgAbj", "Augustus Gloop")'
+    );
+  });
+}
+
+function createProducts() {
+  db.run(
+      "CREATE TABLE Products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, description TEXT, price  )"
+    );
+  console.log("New table Users created!");
+
+  // insert default users
+  db.serialize(() => {
+    db.run(
+      'INSERT INTO Users (name, email, password) VALUES ("Bobby Botten", "bobby@bbb.com", "OrfgOhooyrf"), ("Augustus Gloop", "augustus_gloop@gmail.com", "VJnagVgAbj")'
     );
   });
 }
