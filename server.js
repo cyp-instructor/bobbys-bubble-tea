@@ -4,7 +4,7 @@
 // init project
 const express = require("express");
 const bodyParser = require("body-parser");
-const expressLayouts = require('express-ejs-layouts')
+const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 const fs = require("fs");
@@ -67,13 +67,16 @@ db.serialize(() => {
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", (request, response) => {
-  response.sendFile(`${__dirname}/views/index.html`);
+  db.all("SELECT * from Products", (err, rows) => {
+    if (err) {
+      console.log(err)
+    }
+    response.render("index", { products: JSON.stringify(rows) })
+  })
 });
 
 app.get("/products", (request, response) => {
-  db.all("SELECT * from Products", (err, rows) => {
-    response.render(`${__dirname}/views/products.hbs`, { products: JSON.stringify(rows) })
-  })
+  
 })
 
 // endpoint to add a dream to the database
