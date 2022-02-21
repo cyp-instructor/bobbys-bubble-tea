@@ -14,6 +14,7 @@ app.use(bodyParser.json());
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static("public"));
+app.set('view engine', 'hbs');
 
 // init sqlite db
 const dbFile = "./.data/sqlite.db";
@@ -44,10 +45,10 @@ function createProducts() {
   // insert default users
   db.serialize(() => {
     db.run(
-      'INSERT INTO Products (name, description, price, is_hidden, is_special, img_url) VALUES '\
-      '("Earl Grey", "Lorem Ipsum", 13, FALSE, FALSE, ""), '\
-      '("Bishi Bashi", "Lorem Ipsum", 15, TRUE, FALSE, ""), \'
-      '("CNY Deal!", "Lorem Ipsum", 5, FALSE, TRUE, "")'
+      'INSERT INTO Products (name, description, price, is_hidden, is_special, img_url) VALUES \
+      ("Earl Grey", "Lorem Ipsum", 13, FALSE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
+      ("Bishi Bashi", "Lorem Ipsum", 15, TRUE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
+      ("CNY Deal!", "Lorem Ipsum", 5, FALSE, TRUE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png")'
     );
   });
 }
@@ -55,14 +56,10 @@ function createProducts() {
 // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
 db.serialize(() => {
   if (!exists) {
-    
+    createUsers()
+    createProducts()
   } else {
-    console.log('Database "Dreams" ready to go!');
-    db.each("SELECT * from Dreams", (err, row) => {
-      if (row) {
-        console.log(`record: ${row.dream}`);
-      }
-    });
+    console.log('Database ready to go!');
   }
 });
 
@@ -77,6 +74,12 @@ app.get("/getDreams", (request, response) => {
     response.send(JSON.stringify(rows));
   });
 });
+
+app.get("/products", (request, response) => {
+  db.each("SELECT * from Products", (err, row) => {
+    response.sendFile(`${__dirname}/views/products.html`, )
+  })
+})
 
 // endpoint to add a dream to the database
 app.post("/addDream", (request, response) => {
