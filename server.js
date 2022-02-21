@@ -21,20 +21,24 @@ const exists = fs.existsSync(dbFile);
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database(dbFile);
 
+function createUsers() {
+  db.run(
+      "CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, email varchar(255) UNIQUE, password varchar(255))"
+    );
+  console.log("New table Users created!");
+
+  // insert default users
+  db.serialize(() => {
+    db.run(
+      'INSERT INTO Users VALUES ()'
+    );
+  });
+}
+
 // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
 db.serialize(() => {
   if (!exists) {
-    db.run(
-      "CREATE TABLE Dreams (id INTEGER PRIMARY KEY AUTOINCREMENT, dream TEXT)"
-    );
-    console.log("New table Dreams created!");
-
-    // insert default dreams
-    db.serialize(() => {
-      db.run(
-        'INSERT INTO Dreams (dream) VALUES ("Find and count some sheep"), ("Climb a really tall mountain"), ("Wash the dishes")'
-      );
-    });
+    
   } else {
     console.log('Database "Dreams" ready to go!');
     db.each("SELECT * from Dreams", (err, row) => {
