@@ -37,14 +37,17 @@ function createUsers() {
 
 function createProducts() {
   db.run(
-      "CREATE TABLE Products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, description TEXT, price  )"
+      "CREATE TABLE Products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, description TEXT, price INTEGER, is_hidden INTEGER, is_special INTEGER, img_url TEXT)"
     );
-  console.log("New table Users created!");
+  console.log("New table Products created!");
 
   // insert default users
   db.serialize(() => {
     db.run(
-      'INSERT INTO Users (name, email, password) VALUES ("Bobby Botten", "bobby@bbb.com", "OrfgOhooyrf"), ("Augustus Gloop", "augustus_gloop@gmail.com", "VJnagVgAbj")'
+      'INSERT INTO Products (name, description, price, is_hidden, is_special, img_url) VALUES '\
+      '("Earl Grey", "Lorem Ipsum", 13, FALSE, FALSE, ""), '\
+      '("Bishi Bashi", "Lorem Ipsum", 15, TRUE, FALSE, ""), \'
+      '("CNY Deal!", "Lorem Ipsum", 5, FALSE, TRUE, "")'
     );
   });
 }
