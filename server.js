@@ -90,6 +90,18 @@ function createOrders() {
   )
 }
 
+function createPromos() {
+  db.run(
+    "CREATE TABLE Promos (code TEXT PRIMARY KEY UNIQUE, discount INTEGER)"
+  )
+
+  db.serialize(() => {
+    db.run(
+      "INSERT INTO Promos VALUES ('CNY', 20)"
+    )
+  })
+}
+
 // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
 db.serialize(() => {
   if (!exists) {
@@ -97,6 +109,7 @@ db.serialize(() => {
     createProducts()
     createReviews()
     createOrders()
+    createPromos()
   } else {
     console.log('Database ready to go!');
   }
@@ -263,20 +276,49 @@ app.get("/checkout", requireAuth, (req, res) => {
   return res.render("checkout", { name: req.query.name })
 })
 
-app.get("/buy", requireAuth, (req, res) => {
+function getPromo(code) {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT * from Promos WHERE code='${code}'`, (err, row) => {
+      if (err) {
+        reject(err.message)
+      } else {
+        resolve(row)
+      }
+    })
+  })
+}
+
+function getProduct(product_name) {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT * from Products WHERE name='${product_name}'`, (err, row) => {
+      resolve(row)
+    })
+  })
+}
+
+function createOrder(user_id, product_name, price) {
+  return new Promise((resolve, reject) => {
+    db.run(`INSERT INTO Orders (user_id, product, amount, date, finalized) VALUES (${user_id}, '${product_name}', ${price}, ${Date.now()}, FALSE)`, function(err) {
+      resolve(this.lastID)
+    })
+  })
+}
+
+app.get("/buy", requireAuth, async (req, res) => {
   var user_id = req.query.user_id
   var name = req.query.name
   var promo = req.query.promo
 
-  db.get(`SELECT * from Products WHERE name='${name}'`, (err, row) => {
-    var price = row.price
-    if (promo) {
-      // TODO: Apply promo
-    }
-    db.run(`INSERT INTO Orders (user_id, product, amount, date, finalized) VALUES (${user_id}, '${name}', ${price}, ${Date.now()}, 0)`, function(err) {
-      return res.redirect(`/pay?order_id=${this.lastID}`)
-    })
-  })
+  var product = await getProduct(name)
+  var price = product.price
+  if (promo) {
+    var promoDiscount = await getPromo(promo)
+    price = Math.floor(((100 - promoDiscount.discount)/100) * price)
+  }
+
+  var orderId = await createOrder(user_id, name, price)
+  
+  return res.redirect(`/pay?order_id=${orderId}`)
 })
 
 app.get("/pay", (req, res) => {
