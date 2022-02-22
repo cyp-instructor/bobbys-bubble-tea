@@ -103,6 +103,29 @@ app.use(function(req, res, next) {
   next();
 })
 
+const requireAuth = (req, res, next) => {
+  if (req.query.user_id && req.query.auth == 1) {
+    next()
+  } else {
+    res.render("/login", { message: "Please log in to continue." })
+  }
+}
+
+function redirectAuthenticated(req, res, path, params) {
+  const authParams = {
+    "user_id": req.query.user_id,
+    "auth": req.query.auth
+  }
+
+  return res.redirect(url.format({
+    pathname: path,
+    query: {
+      ...authParams,
+      ...params
+    }
+  }))
+}
+
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", (request, response) => {
   db.all("SELECT * from Products WHERE NOT is_hidden", (err, rows) => {
@@ -194,17 +217,12 @@ app.get("/register", (request, response) => {
   }
 })
 
-app.get("/review", (req, res) => {
+app.get("/review", requireAuth, (req, res) => {
   var action = req.query.action
   var user_id = req.query.user_id
-  var auth = req.query.auth
-
-  if (!user_id || (auth != 1)) {
-    return res.redirect("/login", { message: "You must be logged in to manage reviews" })
-  }
+  var product = req.query.product
 
   if (action === "add") {
-    var product = req.query.product
     var rating = req.query.rating
     var text = req.query.text
 
@@ -216,16 +234,19 @@ app.get("/review", (req, res) => {
       `INSERT INTO Reviews (user_id, product, rating, text, date) \
       VALUES (${user_id}, '${product}', ${rating}, '${text}', ${Date.now()})`,
       function(err) {
-        return res.redirect(url.format({
-          pathname: "/tea",
-          query: {
-            "name": product,
-            "user_id": user_id,
-            "auth": 1
-          }
-        }))
+        return redirectAuthenticated(req, res, "/tea", { "name": product })
       }
     )
+  } else if (action === "del") {
+    var review_id = req.query.review_id
+    if (review_id) {
+      db.run(
+        `DELETE FROM Reviews WHERE id=${review_id}`, 
+        function(err) {
+          return redirectAuthenticated(req, res, "/tea", { "name": product })
+        }
+      )
+    }
   } else {
     return res.sendStatus(400)
   }
