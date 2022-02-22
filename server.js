@@ -5,24 +5,39 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const expressLayouts = require('express-ejs-layouts');
+const url = require("url")
+const _ = require("lodash");
 
 const app = express();
 const fs = require("fs");
+const req = require("express/lib/request");
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(expressLayouts);
 
-app.set('layout', './layouts/main')
+app.locals._ = _;
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static("public"));
+
 app.set('view engine', 'ejs');
+
+app.locals.title = function(str){
+  return _.startCase(_.camelCase(str))
+};
+
+app.use(expressLayouts);
+app.set('layout', './layouts/main')
 
 // init sqlite db
 const dbFile = "./.data/sqlite.db";
 const exists = fs.existsSync(dbFile);
 const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database(dbFile);
+const db = new sqlite3.Database(":memory:");
+
+function bobaMess(str) {
+  return str.replace(/[a-zA-Z]/g,function(c){return String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);});
+}
 
 function createUsers() {
   db.run(
@@ -48,11 +63,25 @@ function createProducts() {
   db.serialize(() => {
     db.run(
       'INSERT INTO Products (name, description, price, is_hidden, is_special, img_url) VALUES \
-      ("Earl Grey", "Lorem Ipsum", 13, FALSE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
-      ("Bishi Bashi", "Lorem Ipsum", 15, TRUE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
-      ("CNY Deal!", "Lorem Ipsum", 5, FALSE, TRUE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png")'
+      ("earl_gray", "Lorem Ipsum", 13, FALSE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
+      ("bishi_bashi", "Lorem Ipsum", 15, TRUE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
+      ("cny_deal", "Lorem Ipsum", 5, FALSE, TRUE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png")'
     );
   });
+}
+
+function createReviews() {
+  db.run(
+    "CREATE TABLE Reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, product TEXT, rating INTEGER, text TEXT, date INTEGER)"
+  )
+
+  db.serialize(() => {
+    db.run(
+      "INSERT INTO Reviews (user_id, product, rating, text, date) VALUES (0, 'earl_gray', 4, 'Not grey enough...', 1645470854)"
+    )
+  })
+
+  console.log("New table Reviews created!");
 }
 
 // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
@@ -60,6 +89,7 @@ db.serialize(() => {
   if (!exists) {
     createUsers()
     createProducts()
+    createReviews()
   } else {
     console.log('Database ready to go!');
   }
@@ -67,65 +97,98 @@ db.serialize(() => {
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", (request, response) => {
-  db.all("SELECT * from Products", (err, rows) => {
-    if (err) {
-      console.log(err)
-    }
-    response.render("index", { products: JSON.stringify(rows) })
+  db.all("SELECT * from Products WHERE NOT is_hidden", (err, rows) => {
+    response.render("index", { products: rows })
   })
 });
 
-app.get("/products", (request, response) => {
-  
+app.get("/tea", (request, response) => {
+  var teaName = request.query.name
+  db.get(`SELECT * from Products WHERE name='${teaName}'`, (err, row) => {
+    if (err) {
+      return response.sendStatus(404)
+    } else {
+      db.all(`SELECT * from Reviews WHERE product='${teaName}'`, (err, rows) => {
+        return response.render("tea", { product: row, reviews: rows })
+      })
+    }
+  })
 })
 
-// endpoint to add a dream to the database
-app.post("/addDream", (request, response) => {
-  console.log(`add to dreams ${request.body.dream}`);
+app.get("/login", (request, response) => {
+  if (request.query.email && request.query.password) {
+    var hashedPassword = bobaMess(request.query.password)
 
-  // DISALLOW_WRITE is an ENV variable that gets reset for new projects
-  // so they can write to the database
-  if (!process.env.DISALLOW_WRITE) {
-    const cleansedDream = cleanseString(request.body.dream);
-    db.run(`INSERT INTO Dreams (dream) VALUES (?)`, cleansedDream, error => {
-      if (error) {
-        response.send({ message: "error!" });
-      } else {
-        response.send({ message: "success" });
-      }
-    });
-  }
-});
-
-// endpoint to clear dreams from the database
-app.get("/clearDreams", (request, response) => {
-  // DISALLOW_WRITE is an ENV variable that gets reset for new projects so you can write to the database
-  if (!process.env.DISALLOW_WRITE) {
-    db.each(
-      "SELECT * from Dreams",
+    db.get(
+      `SELECT * from Users WHERE email='${request.query.email}' AND password='${hashedPassword}'`,
       (err, row) => {
-        console.log("row", row);
-        db.run(`DELETE FROM Dreams WHERE ID=?`, row.id, error => {
-          if (row) {
-            console.log(`deleted row ${row.id}`);
-          }
-        });
-      },
-      err => {
-        if (err) {
-          response.send({ message: "error!" });
+        if (!err && row) {
+          return response.redirect(url.format({
+            pathname: "/",
+            query: {
+              "id": row.id,
+              "auth": 1
+            }
+          }))
         } else {
-          response.send({ message: "success" });
+          return response.render("login", { message: "Login failed." })
         }
       }
-    );
+    )
+  } else {
+    response.render("login", { message: "" })
   }
-});
+})
 
-// helper function that prevents html/css/script malice
-const cleanseString = function(string) {
-  return string.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-};
+app.get("/forgot", (request, response) => {
+  var email = request.query.email
+  if (email) {
+    db.get(`SELECT * from Users WHERE email='${email}'`, (err, row) => {
+      if (!err && row) {
+        return response.render("forgot", { message: "Password reset email sent!" })
+      } else {
+        return response.render("forgot", { message: `Could not find an accout with the email ${email}` })
+      }
+    })
+  } else {
+    return response.render("forgot", { message: "" })
+  }
+})
+
+app.get("/register", (request, response) => {
+  var email = request.query.email
+  if (email && request.query.password && request.query.name) {
+    db.get(`SELECT * from Users WHERE email='${email}'`, (err, row) => {
+      if (!err && row) {
+        return response.render("register", { message: "Email already registered!" })
+      } else {
+        var hashedPassword = bobaMess(request.query.password)
+        db.run(
+          `INSERT INTO Users (email, password, name) VALUES ('${email}', '${hashedPassword}', '${request.query.name}')`,
+          function(err) {
+            if (!err) {
+              return response.redirect(url.format({
+                pathname: "/",
+                query: {
+                  "id": this.lastID,
+                  "auth": 1
+                }
+              }))
+            } else {
+              return response.render("register", { message: err.message })
+            }
+          }
+        )
+      }
+    })
+  } else {
+    return response.render("register", { message: "Please fill in all form fields" })
+  }
+})
+
+if (!process.env.PORT) {
+  process.env.PORT = 4000
+}
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, () => {

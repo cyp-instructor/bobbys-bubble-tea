@@ -1,0 +1,5 @@
+<%- include("partials/product.ejs", { product: product }) %>
+
+<% reviews.forEach((review) => { %>
+    <%- include("partials/review.ejs", { review: review }) %>
+<% }) %>

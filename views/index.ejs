@@ -3,4 +3,5 @@
 </h2>
 
 <% products.forEach(function(product) { %>
+  <%- include("partials/product.ejs", { product: product }) %>
 <% }) %>

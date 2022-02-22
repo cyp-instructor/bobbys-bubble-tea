@@ -1,0 +1,8 @@
+<div class="product">
+    <h3><%= title(product.name) %></h3>
+    <p><%= product.description %></p>
+    <a href="/tea?name=<%= product.name %>">
+      <img src="<%= product.img_url %>">
+    </a>
+    <p class="price"><%= product.price %>$</p>
+  </div>
