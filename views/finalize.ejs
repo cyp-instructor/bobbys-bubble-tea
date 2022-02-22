@@ -1,0 +1,5 @@
+<%- include("partials/steps.ejs", { steps: ["Review", "Pay", "Finalize"], active: 2 }) %>
+
+<p>Order finalized for <%= title(order.product) %></p>
+<p>Payment amount <%= order.amount %>$</p>
+<p>Thank you for buying @ Bobby's Bubble Brew! Come again soon 😊</p>

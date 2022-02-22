@@ -1,0 +1,18 @@
+<%- include("partials/steps.ejs", { steps: ["Review", "Pay", "Finalize"], active: 1 }) %>
+
+<p><%= message %></p>
+
+<h2><%= title(order.product) %></h2>
+<p>Price: <%= order.amount %></p>
+
+<form action="/pay" method="get">
+    <label for="card"><b>Card</b></label>
+    <input type="text" placeholder="Enter Card #" name="card" required>
+
+    <label for="cvv"><b>CVV</b></label>
+    <input type="text" placeholder="" name="cvv" required>
+
+    <input type="hidden" name="order_id" value="<%= order.id %>">
+
+    <button type="submit">Pay</button>
+</form>

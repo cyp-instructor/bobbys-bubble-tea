@@ -9,4 +9,9 @@
       <img src="<%= product.img_url %>">
     </a>
     <p class="price"><%= product.price %>$</p>
+    <% if(user_id && auth == 1) { %>
+        <a href="/checkout?name=<%= product.name %>&user_id=<%= user_id %>&auth=<%= auth %>">
+            <button>Buy!</button>
+        </a>
+    <% } %>
   </div>

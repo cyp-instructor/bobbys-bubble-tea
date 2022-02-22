@@ -84,12 +84,19 @@ function createReviews() {
   console.log("New table Reviews created!");
 }
 
+function createOrders() {
+  db.run(
+    "CREATE TABLE Orders (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, product TEXT, amount INTEGER, date INTEGER, finalized INTEGER)"
+  )
+}
+
 // if ./.data/sqlite.db does not exist, create it, otherwise print records to console
 db.serialize(() => {
   if (!exists) {
     createUsers()
     createProducts()
     createReviews()
+    createOrders()
   } else {
     console.log('Database ready to go!');
   }
@@ -250,6 +257,56 @@ app.get("/review", requireAuth, (req, res) => {
   } else {
     return res.sendStatus(400)
   }
+})
+
+app.get("/checkout", requireAuth, (req, res) => {
+  return res.render("checkout", { name: req.query.name })
+})
+
+app.get("/buy", requireAuth, (req, res) => {
+  var user_id = req.query.user_id
+  var name = req.query.name
+  var promo = req.query.promo
+
+  db.get(`SELECT * from Products WHERE name='${name}'`, (err, row) => {
+    var price = row.price
+    if (promo) {
+      // TODO: Apply promo
+    }
+    db.run(`INSERT INTO Orders (user_id, product, amount, date, finalized) VALUES (${user_id}, '${name}', ${price}, ${Date.now()}, 0)`, function(err) {
+      return res.redirect(`/pay?order_id=${this.lastID}`)
+    })
+  })
+})
+
+app.get("/pay", (req, res) => {
+  var order_id = req.query.order_id
+  
+  if (!order_id) {
+    return res.redirect("/")
+  }
+
+  db.get(`SELECT * FROM Orders WHERE id=${order_id}`, function(err, row) {
+    var message = ""
+    if (req.query.card) {
+      message = "Payment failed 😢"
+    }
+    return res.render("pay", { order: row, message: message })
+  })
+})
+
+app.get("/finalize", (req, res) => {
+  var order_id = req.query.order_id
+  
+  if (!order_id) {
+    return res.redirect("/")
+  }
+
+  db.get(`SELECT * FROM Orders WHERE id=${order_id}`, function(err, row) {
+    db.run(`UPDATE Orders SET finalized=TRUE WHERE id=${order_id}`, function(err_) {
+      return res.render("finalize", { order: row })
+    })
+  })
 })
 
 if (!process.env.PORT) {

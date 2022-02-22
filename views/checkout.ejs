@@ -1,0 +1,12 @@
+<%- include("partials/steps.ejs", { steps: ["Review", "Pay", "Finalize"], active: 0 }) %>
+
+<form action="/buy" method="get">
+    <label for="promo"><b>Promo Code</b></label>
+    <input type="text" placeholder="Enter Code" name="promo">
+    
+    <input type="hidden" name="name" value="<%= name %>">
+    <input type="hidden" name="user_id" value="<%= user_id %>">
+    <input type="hidden" name="auth" value="1">
+
+    <button type="submit">On to Payment</button>
+</form>

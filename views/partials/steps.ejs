@@ -1,0 +1,12 @@
+<div class="progress-bar">
+    <% for(var i=0; i<steps.length; ++i) { %>
+    <div class="step">
+        <p><%= steps[i] %></p>
+        <div class="bullet <%= active == i ? "active" : "" %>">
+            <span><%= i+1 %></span>
+        </div>
+        <div class="check fas fa-check <%= active == i ? "active" : "" %>">
+        </div>
+    </div>
+    <% } %>
+</div>
