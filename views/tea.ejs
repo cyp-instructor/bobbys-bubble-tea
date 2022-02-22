@@ -3,3 +3,7 @@
 <% reviews.forEach((review) => { %>
     <%- include("partials/review.ejs", { review: review }) %>
 <% }) %>
+
+<% if(user_id && auth == 1) { %>
+    <%- include("partials/add_review", { product: product.name, user_id: user_id }) %>
+<% } %>

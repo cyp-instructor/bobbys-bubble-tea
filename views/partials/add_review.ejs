@@ -1,0 +1,16 @@
+<div class="add-review">
+    <form action="/review" method="get">
+        <label for="rating"><b>Rating</b></label>
+        <input type="text" placeholder="1-5" name="rating" required>
+    
+        <label for="text"><b>Text</b></label>
+        <textarea name="text" rows="4" cols="38" required>Enter review text</textarea>
+    
+        <input type="hidden" name="product" value="<%= product %>">
+        <input type="hidden" name="action" value="add">
+        <input type="hidden" name="user_id" value="<%= user_id %>">
+        <input type="hidden" name="auth" value="1">
+
+        <button type="submit">Submit</button>
+    </form>
+</div>

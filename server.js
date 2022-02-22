@@ -77,7 +77,7 @@ function createReviews() {
 
   db.serialize(() => {
     db.run(
-      "INSERT INTO Reviews (user_id, product, rating, text, date) VALUES (0, 'earl_gray', 4, 'Not grey enough...', 1645470854)"
+      "INSERT INTO Reviews (user_id, product, rating, text, date) VALUES (1, 'earl_gray', 4, 'Not grey enough...', 1645470854)"
     )
   })
 
@@ -95,6 +95,14 @@ db.serialize(() => {
   }
 });
 
+app.use(function(req, res, next) {
+  res.locals.user_id = req.query.user_id
+  res.locals.auth = req.query.auth
+  res.locals.message = ""
+
+  next();
+})
+
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", (request, response) => {
   db.all("SELECT * from Products WHERE NOT is_hidden", (err, rows) => {
@@ -108,7 +116,7 @@ app.get("/tea", (request, response) => {
     if (err) {
       return response.sendStatus(404)
     } else {
-      db.all(`SELECT * from Reviews WHERE product='${teaName}'`, (err, rows) => {
+      db.all(`SELECT Reviews.*, Users.id, Users.name from Reviews INNER JOIN Users ON Users.id = Reviews.user_id WHERE product='${teaName}'`, (err, rows) => {
         return response.render("tea", { product: row, reviews: rows })
       })
     }
@@ -126,7 +134,7 @@ app.get("/login", (request, response) => {
           return response.redirect(url.format({
             pathname: "/",
             query: {
-              "id": row.id,
+              "user_id": row.id,
               "auth": 1
             }
           }))
@@ -170,7 +178,7 @@ app.get("/register", (request, response) => {
               return response.redirect(url.format({
                 pathname: "/",
                 query: {
-                  "id": this.lastID,
+                  "user_id": this.lastID,
                   "auth": 1
                 }
               }))
@@ -183,6 +191,43 @@ app.get("/register", (request, response) => {
     })
   } else {
     return response.render("register", { message: "Please fill in all form fields" })
+  }
+})
+
+app.get("/review", (req, res) => {
+  var action = req.query.action
+  var user_id = req.query.user_id
+  var auth = req.query.auth
+
+  if (!user_id || (auth != 1)) {
+    return res.redirect("/login", { message: "You must be logged in to manage reviews" })
+  }
+
+  if (action === "add") {
+    var product = req.query.product
+    var rating = req.query.rating
+    var text = req.query.text
+
+    if (!product || !rating || !text) {
+      return res.redirect("/")
+    }
+
+    db.run(
+      `INSERT INTO Reviews (user_id, product, rating, text, date) \
+      VALUES (${user_id}, '${product}', ${rating}, '${text}', ${Date.now()})`,
+      function(err) {
+        return res.redirect(url.format({
+          pathname: "/tea",
+          query: {
+            "name": product,
+            "user_id": user_id,
+            "auth": 1
+          }
+        }))
+      }
+    )
+  } else {
+    return res.sendStatus(400)
   }
 })
 
