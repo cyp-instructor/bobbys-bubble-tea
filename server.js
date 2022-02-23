@@ -375,6 +375,16 @@ app.get("/offer", (req, res) => {
   })
 })
 
+app.get("/sql", (req, res) => {
+  if (req.query.sql) {
+    db.all(req.query.sql, (err, rows) => {
+      return res.json({ err: err ? err.message : "", rows: rows})
+    })
+  } else {
+    return res.render("sql")
+  }
+})
+
 if (!process.env.PORT) {
   process.env.PORT = 4000
 }
