@@ -2,6 +2,9 @@
   <% if (auth != 1) { %>
   <a href="/login">Login</a>
   <a href="/register">Register</a>
+  <% } else { %>
+    <a href="/">Logout</a>
+    <a href="/orders?user_id=<%= user_id %>&auth=<%= auth %>">Your Orders</a>
   <% } %>
 </nav>
 

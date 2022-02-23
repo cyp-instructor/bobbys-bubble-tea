@@ -1,6 +1,13 @@
-<%- include("partials/steps.ejs", { steps: ["Review", "Pay", "Finalize"], active: 0 }) %>
+<%- include("partials/steps.ejs", { steps: ["Checkout", "Pay", "Finalize"], active: 0 }) %>
 
+<% if (locals.message)  { %>
+    <h2><%= title(name) %></h2>
+    <p><%= message %></p>
+<% } else { %>
 <form action="/buy" method="get">
+    <h2><%= title(name) %></h2>
+    <p>Price: <%= price %>$</p>
+
     <label for="promo"><b>Promo Code</b></label>
     <input type="text" placeholder="Enter Code" name="promo">
     
@@ -10,3 +17,4 @@
 
     <button type="submit">On to Payment</button>
 </form>
+<% } %>

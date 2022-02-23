@@ -97,7 +97,7 @@ function createPromos() {
 
   db.serialize(() => {
     db.run(
-      "INSERT INTO Promos VALUES ('CNY', 20)"
+      "INSERT INTO Promos VALUES ('000', 100), ('CNY', 20), ('925', 50)"
     )
   })
 }
@@ -127,7 +127,7 @@ const requireAuth = (req, res, next) => {
   if (req.query.user_id && req.query.auth == 1) {
     next()
   } else {
-    res.render("/login", { message: "Please log in to continue." })
+    res.render("login", { message: "Please log in to continue.", url: req.url })
   }
 }
 
@@ -174,13 +174,11 @@ app.get("/login", (request, response) => {
       `SELECT * from Users WHERE email='${request.query.email}' AND password='${hashedPassword}'`,
       (err, row) => {
         if (!err && row) {
-          return response.redirect(url.format({
-            pathname: "/",
-            query: {
-              "user_id": row.id,
-              "auth": 1
-            }
-          }))
+          var redirectUrl = new URL("http://dummy.com" + (request.query.url ? request.query.url : "/"))
+          redirectUrl.searchParams.append("user_id", row.id)
+          redirectUrl.searchParams.append("auth", 1)
+
+          return response.redirect(redirectUrl.pathname + redirectUrl.search)
         } else {
           return response.render("login", { message: "Login failed." })
         }
@@ -273,7 +271,14 @@ app.get("/review", requireAuth, (req, res) => {
 })
 
 app.get("/checkout", requireAuth, (req, res) => {
-  return res.render("checkout", { name: req.query.name })
+  if (req.query.expiry) {
+    var expiryDate = new Date(req.query.expiry)
+    if (Date.now() > expiryDate) {
+      return res.render("checkout", { name: req.query.name, message: "Deal expired 😞" })    
+    }
+  }
+
+  return res.render("checkout", { name: req.query.name, price: req.query.price })
 })
 
 function getPromo(code) {
@@ -348,6 +353,25 @@ app.get("/finalize", (req, res) => {
     db.run(`UPDATE Orders SET finalized=TRUE WHERE id=${order_id}`, function(err_) {
       return res.render("finalize", { order: row })
     })
+  })
+})
+
+app.get("/orders", requireAuth, (req, res) => {
+  db.all(`SELECT * FROM Orders WHERE user_id=${req.query.user_id}`, function(err, rows) {
+    return res.render("orders", { orders: rows })
+  })
+})
+
+app.get("/offer", (req, res) => {
+  var expiry = req.query.expiry
+  var offer = req.query.offer
+
+  if (!expiry || !offer) {
+    return res.redirect("/")
+  }
+
+  db.get(`SELECT * from Products WHERE name='${offer}'`, (err, row) => {
+    return res.render("offer", { offer: row, expiry: expiry })
   })
 })
 

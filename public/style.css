@@ -121,9 +121,9 @@ footer {
   position: absolute;
   content: '';
   bottom: 11px;
-  right: -51px;
+  right: -75px;
   height: 3px;
-  width: 44px;
+  width: 60px;
   background: #262626;
 }
 .progress-bar .step .bullet.active:after{

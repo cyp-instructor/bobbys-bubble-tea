@@ -1,0 +1,16 @@
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Product</th>
+        <th>Amount</th>
+        <th>Finalized</th>
+    </tr>
+<% orders.forEach(order => { %>
+    <tr>
+        <td><%= new Date(order.date) %></td>
+        <td><%= order.product %></td>
+        <td><%= order.amount %></td>
+        <td><%= order.finalized %></td>
+    </tr>
+<% }) %>
+</table>

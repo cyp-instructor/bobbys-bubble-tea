@@ -10,7 +10,11 @@
     </a>
     <p class="price"><%= product.price %>$</p>
     <% if(user_id && auth == 1) { %>
-        <a href="/checkout?name=<%= product.name %>&user_id=<%= user_id %>&auth=<%= auth %>">
+        <a href="/checkout?name=<%= product.name %>&price=<%= product.price %>&user_id=<%= user_id %>&auth=<%= auth %><%= locals.expiry ? "&expiry=" + expiry : "" %>">
+            <button>Buy!</button>
+        </a>
+    <% } else { %>
+        <a href="/checkout?name=<%= product.name %>&price=<%= product.price %><%= locals.expiry ? "&expiry=" + expiry : "" %>">
             <button>Buy!</button>
         </a>
     <% } %>
