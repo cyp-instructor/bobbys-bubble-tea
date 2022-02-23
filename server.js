@@ -170,6 +170,10 @@ app.get("/tea", (request, response) => {
     } else {
       // Join Reviews and Users so the reviewer name can be displayed
       db.all(`SELECT Reviews.*, Users.id, Users.name from Reviews INNER JOIN Users ON Users.id = Reviews.user_id WHERE product='${teaName}'`, (err, rows) => {
+        if (err) {
+          rows = []
+        }
+        
         return response.render("tea", { product: row, reviews: rows })
       })
     }
