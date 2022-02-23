@@ -1,8 +1,13 @@
 <header>
-  <h1>
-    Bobby's Bubble Brew
-  </h1>
+  <div id="title">
+    <a href="/<%= locals.user_id ? ("?auth=1&user_id=" + user_id) : "" %>"><img src="https://i.ibb.co/PhY6QnZ/bubble-tea-a.png"></a>
+    <h1>
+      Bobby's Bubble Brew
+    </h1>
+  </div>
+  <div class="tagline">
   <p>
     Shop online for Singapore's most famous Bubble Tea brand!
   </p>
+  </div>
 </header>

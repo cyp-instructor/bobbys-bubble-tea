@@ -1,36 +1,53 @@
 /* styles */
 /* called by your view template */
 
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
 * {
   box-sizing: border-box;
+}
+
+
+:root {
+  --surface-color: #37d9d9;
+  --curve: 40;
+}
+
+html {
+  width: 100%;
 }
 
 body {
   font-family: helvetica, arial, sans-serif;
   margin: 2em;
+  background-color: aliceblue;
 }
 
 h1 {
   font-style: italic;
-  color: #373fff;
+  color: #2e54bd;
+}
+
+header h1 {
+  font-size: 2.5em;
 }
 
 .bold {
   font-weight: bold;
 }
 
-p {
-  max-width: 600px;
-}
-
 form {
   margin-bottom: 25px;
-  padding: 15px;
-  background-color: cyan;
+  box-shadow: 2px 2px teal;
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 1em 2em;
   display: inline-block;
   width: 100%;
   max-width: 340px;
   border-radius: 3px;
+  background-color: var(--surface-color);
+  font-size: 1.2em;
 }
 
 input {
@@ -41,6 +58,10 @@ input {
   border: 1px solid lightgrey;
   border-radius: 3px;
   font-size: 16px;
+}
+
+label {
+  line-height: 2;
 }
 
 button {
@@ -156,4 +177,195 @@ footer {
 .progress-bar .step .check.active{
   display: block;
   color: #fff;
+}
+
+.container {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 4rem 5vw;
+  padding: 0;
+  list-style-type: none;
+}
+
+.product-wrapper {
+  position: relative;
+  width: 300px;
+  height: 500px;
+}
+
+.buy {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.buy button {
+  font-size: 1.5em;
+}
+
+.card {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+}
+
+.card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.card__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  transition: .2s ease-in-out;
+}
+
+.card:hover .card__header {
+  height: auto;
+}
+
+.card__header {
+  position: relative;
+  background-color: var(--surface-color);
+  transition: .2s ease-in-out;
+  transform: skew(-10deg);
+  border-radius: 5px;
+  height: 80px;
+  overflow: hidden;
+  padding: 5px 2em;
+  font-family: 'VT323', monospace;
+  box-shadow: 2px 2px teal;
+  font-size: 1.3em;
+  border: 1px solid grey;
+  color: white;
+}
+
+.card__title {
+  font-size: 1.2em;
+}
+
+.card__header-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2em;
+  transform: skew(10deg);
+}
+
+.card__status {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8em;
+}
+
+.card__thumb {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;   
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card__thumb span {
+  font-size: 1.5em;
+  padding-left: 5px;
+  color: #2e54bd;
+  flex: 1;
+}
+
+header {
+  padding-top: 20px;
+}
+
+#title {
+  position: relative;
+  max-height: 100px;
+  overflow: visible;
+}
+
+header img {
+  width: 200px;
+  float: left;
+  position: relative;
+  top: -100px;
+  overflow: visible;
+  margin-right: 15px;
+  z-index: 1;
+}
+
+.tagline {
+  background-color: #37d9d9;
+  transform: skew(-10deg);
+  padding: 1px;
+  border-radius: 5px;
+  font-family: 'VT323', monospace;
+  box-shadow: 2px 2px teal;
+  font-size: 1.3em;
+  border: 1px solid grey;
+  z-index: 0;
+  color: white;
+  text-align: center;
+}
+
+.product {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.review {
+  width: 100%;
+  box-shadow: 2px 2px teal;
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 1em 2em;
+  background-color: #fdfcca;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.delete-review {
+  float: right;
+  color: black;
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+.add-review {
+  width: 100%;
+}
+
+.add-review form {
+  width: 100%;
+  max-width: unset;
+}
+
+textarea {
+  border-radius: 5px;
+  padding: 5px;
+}
+
+nav {
+  width: 100%;
+  margin-top: 10px;
+}
+
+nav a {
 }

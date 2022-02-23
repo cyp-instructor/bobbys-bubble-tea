@@ -1,17 +1,17 @@
 <nav>
   <% if (auth != 1) { %>
-  <a href="/login">Login</a>
-  <a href="/register">Register</a>
+  <a href="/login"><button>Login</button></a>
+  <a href="/register"><button>Register</button></a>
   <% } else { %>
-    <a href="/">Logout</a>
-    <a href="/orders?user_id=<%= user_id %>&auth=<%= auth %>">Your Orders</a>
+    <a href="/"><button>Logout</button></a>
+    <a href="/orders?user_id=<%= user_id %>&auth=<%= auth %>"><button>Your Orders</button></a>
   <% } %>
 </nav>
 
-<h2>
-  Available products:
-</h2>
-
+<ul class="cards">
 <% products.forEach(function(product) { %>
+  <li>
   <%- include("partials/product.ejs", { product: product }) %>
+  </li>
 <% }) %>
+</ul>

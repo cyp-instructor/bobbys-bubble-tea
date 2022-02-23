@@ -1,8 +1,14 @@
+<div class="product">
 <%- include("partials/product.ejs", { product: product }) %>
+</div>
+
+<h2>Reviews</h2>
 
 <% reviews.forEach((review) => { %>
     <%- include("partials/review.ejs", { review: review }) %>
 <% }) %>
+
+<h2>Add Review</h2>
 
 <% if(user_id && auth == 1) { %>
     <%- include("partials/add_review", { product: product.name, user_id: user_id }) %>

@@ -48,7 +48,9 @@ function createUsers() {
   // insert default users
   db.serialize(() => {
     db.run(
-      'INSERT INTO Users (email, password, name) VALUES ("bobby@bbb.com", "OrfgOhooyrf", "Bobby Botten"), ("augustus_gloop@gmail.com", "VJnagVgAbj", "Augustus Gloop")'
+      'INSERT INTO Users (email, password, name) VALUES \
+      ("bobby@bbb.com", "OrfgOhooyrf", "Bobby Botten"), \
+      ("gloop1980@gmail.com", "VJnagVgAbj", "Augustus Gloop")'
     );
   });
 }
@@ -146,19 +148,27 @@ function redirectAuthenticated(req, res, path, params) {
   }))
 }
 
-// http://expressjs.com/en/starter/basic-routing.html
+/* Display all the non-hidden products */
 app.get("/", (request, response) => {
   db.all("SELECT * from Products WHERE NOT is_hidden", (err, rows) => {
-    response.render("index", { products: rows })
+    if (err) {
+      console.log(err.message)
+      response.sendStatus(500)
+    } else  {
+      response.render("index", { products: rows })
+    }
   })
 });
 
+/* Display iformation for a parcticular product */
 app.get("/tea", (request, response) => {
   var teaName = request.query.name
   db.get(`SELECT * from Products WHERE name='${teaName}'`, (err, row) => {
     if (err) {
+      console.log(err.message)
       return response.sendStatus(404)
     } else {
+      // Join Reviews and Users so the reviewer name can be displayed
       db.all(`SELECT Reviews.*, Users.id, Users.name from Reviews INNER JOIN Users ON Users.id = Reviews.user_id WHERE product='${teaName}'`, (err, rows) => {
         return response.render("tea", { product: row, reviews: rows })
       })
@@ -170,6 +180,7 @@ app.get("/login", (request, response) => {
   if (request.query.email && request.query.password) {
     var hashedPassword = bobaMess(request.query.password)
 
+    // This query supports SQL injection :)
     db.get(
       `SELECT * from Users WHERE email='${request.query.email}' AND password='${hashedPassword}'`,
       (err, row) => {
@@ -178,14 +189,16 @@ app.get("/login", (request, response) => {
           redirectUrl.searchParams.append("user_id", row.id)
           redirectUrl.searchParams.append("auth", 1)
 
+          // Redirect back to the previous page but this time with the auth query params
           return response.redirect(redirectUrl.pathname + redirectUrl.search)
         } else {
+          console.log(err)
           return response.render("login", { message: "Login failed." })
         }
       }
     )
   } else {
-    response.render("login", { message: "" })
+    response.render("login", { message: "Please fill in all fields" })
   }
 })
 

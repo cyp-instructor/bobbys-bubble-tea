@@ -61,4 +61,11 @@ async function execQuery() {
         document.getElementById("result").replaceChildren(buildHtmlTable(data.rows))
     }
 }
+
+document.addEventListener('keypress', function (e) {
+    if (e.key == "Enter") {
+        e.preventDefault()
+        execQuery()
+    }
+})
 </script>
