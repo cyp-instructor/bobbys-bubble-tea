@@ -192,12 +192,13 @@ footer {
   margin: 4rem 5vw;
   padding: 0;
   list-style-type: none;
+  width: 100%;
 }
 
 .product-wrapper {
   position: relative;
-  width: 300px;
-  height: 500px;
+  width: 350px;
+  height: 400px;
 }
 
 .buy {
@@ -207,7 +208,7 @@ footer {
 }
 
 .buy button {
-  font-size: 1.5em;
+  /* font-size: 1.5em; */
 }
 
 .card {
@@ -223,6 +224,7 @@ footer {
   height: 100%;
   object-fit: cover;
   object-position: center center;
+  border-radius: 5px;
 }
 
 .card__overlay {
@@ -368,4 +370,24 @@ nav {
 }
 
 nav a {
+}
+
+.product.big .product-wrapper {
+  width: 600px;
+  height: auto;
+}
+
+.product.big .card__overlay {
+  position: unset;
+  width: 100%;
+}
+
+.product.big .card__image {
+  min-width: 600px;
+  height: auto;
+  object-fit: unset;
+}
+
+.product.big .card__header {
+  height: auto;
 }

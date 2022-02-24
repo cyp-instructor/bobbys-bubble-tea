@@ -65,9 +65,16 @@ function createProducts() {
   db.serialize(() => {
     db.run(
       'INSERT INTO Products (name, description, price, is_hidden, is_special, img_url) VALUES \
-      ("earl_gray", "Lorem Ipsum", 13, FALSE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
-      ("bishi_bashi", "Lorem Ipsum", 15, TRUE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
-      ("cny_deal", "Lorem Ipsum", 5, FALSE, TRUE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png")'
+      ("earl_grey", "Start your day with this British delight!", 13, FALSE, FALSE, "https://i.ibb.co/RD2Q8bp/Bubble-Tea.png"), \
+      ("bubble_teh_tarik", "Spiced tea with milk and bubbles, yum!", 8, FALSE, FALSE, "https://i.ibb.co/VMTTKyt/bubble-teh-tarik.jpg"), \
+      ("bishi_bashi", "Special! ", 15, TRUE, FALSE, "https://i.ibb.co/y51nrQL/Bishi-Bashi.jpg"), \
+      ("durian_bubble_tea", "King of Fruit + Bubbles = WOW!", 17, FALSE, FALSE, "https://i.ibb.co/yYgVTCX/durian-bubble-tea.jpg"), \
+      ("cny_deal", "Special Tea for a Special occasion", 5, FALSE, TRUE, "https://i.ibb.co/HdNRhT8/cny-tea.jpg"), \
+      ("panda_tea", "Le Le\'s favourite bubble drink!", 10, FALSE, FALSE, "https://i.ibb.co/rp3bLW7/panda-tea.jpg"), \
+      ("catch_no_ball_tea", "(It\'s actually coffee!)", 7, FALSE, FALSE, "https://i.ibb.co/qF012rq/catch-no-ball.png"), \
+      ("ang_moh_bubbles", "That\'s how they like it...", 50, FALSE, FALSE, "https://i.ibb.co/9TStyMj/ang-moh.png"), \
+      ("shiok_baloons", "They\'re huge!!!!", 9, TRUE, FALSE, "https://i.ibb.co/KwpWYSr/shiok-baloons.png"), \
+      ("die_die_must_try", "(signature) it\'s just that good", 9, FALSE, FALSE, "https://i.ibb.co/rG5wSm7/die-die-must-try.png")'
     );
   });
 }
@@ -173,7 +180,7 @@ app.get("/tea", (request, response) => {
         if (err) {
           rows = []
         }
-        
+
         return response.render("tea", { product: row, reviews: rows })
       })
     }
