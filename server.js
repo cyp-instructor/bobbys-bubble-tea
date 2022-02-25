@@ -50,7 +50,13 @@ function createUsers() {
     db.run(
       'INSERT INTO Users (email, password, name) VALUES \
       ("bobby@bbb.com", "OrfgOhooyrf", "Bobby Botten"), \
-      ("gloop1980@gmail.com", "VJnagVgAbj", "Augustus Gloop")'
+      ("gloop1980@gmail.com", "VJnagVgAbj", "Augustus Gloop"), \
+      ("ron@gmail.com", "Cnffjbeq1" ,"Ron S"), \
+      ("satoshi@btc.com", "O1gP0va", "Satoshi Nakamoto"), \
+      ("ash@poke.com", "Cvxnpuh", "Ash Ketchum"), \
+      ("rick@galacticmail.com", "Jnonynonqhoqho", "Rick Sanchez"), \
+      ("morty@normal.com", "vyhiwrffvpn", "Morty Smith"), \
+      ("lele@sgzoo.com", "LhzOnzobb", "Le Le")',
     );
   });
 }
@@ -86,7 +92,14 @@ function createReviews() {
 
   db.serialize(() => {
     db.run(
-      "INSERT INTO Reviews (user_id, product, rating, text, date) VALUES (1, 'earl_gray', 4, 'Not grey enough...', 1645470854)"
+      "INSERT INTO Reviews (user_id, product, rating, text, date) VALUES \
+      (2, 'earl_grey', 4, 'Not grey enough...', 1645470854), \
+      (3, 'ang_moh_bubbles', 5, 'Delightful!', 1645470854), \
+      (8, 'panda_tea', 1, 'Could use more bamboo and less bubbles...', 1645470854), \
+      (6, 'durian_bubble_tea', 1, 'Most disgusting and disgraceful thing Ive ever had the horror to consume.', 1645470854), \
+      (7, 'durian_bubble_tea', 4, 'I, I actually kinda like it Rick...', 1645470854), \
+      (4, 'bishi_bashi', 4, 'Very addictive but wonderful!', 1645470854), \
+      (5, 'bishi_bashi', 2, 'Eh... Pokemon is better...', 1645470854)"
     )
   })
 
@@ -176,7 +189,7 @@ app.get("/tea", (request, response) => {
       return response.sendStatus(404)
     } else {
       // Join Reviews and Users so the reviewer name can be displayed
-      db.all(`SELECT Reviews.*, Users.id, Users.name from Reviews INNER JOIN Users ON Users.id = Reviews.user_id WHERE product='${teaName}'`, (err, rows) => {
+      db.all(`SELECT Reviews.*, Users.id user_id, Users.name from Reviews INNER JOIN Users ON Users.id = Reviews.user_id WHERE product='${teaName}'`, (err, rows) => {
         if (err) {
           rows = []
         }

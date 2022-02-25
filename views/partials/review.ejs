@@ -2,7 +2,8 @@
     <p><%= '⭐'.repeat(review.rating) %></p>
     <h3><%= review.name %></h3>
     <p><%= review.text %></p>
-    <% if (user_id && user_id == review.user_id) { %>
-        <a class="delete-review" href="/review?action=del&review_id=<%= review.id %>&product=<%= review.product %>&user_id=<%= user_id %>&auth=<%= auth %>"><span class="fa fa-trash"></span></a>
-    <% } %>
+    <a class="delete-review" style="<%= (user_id && (user_id == review.user_id)) ? "" : "display:none;" %>" 
+        href="/review?action=del&review_id=<%= review.id %>&product=<%= review.product %>&user_id=<%= user_id %>&auth=<%= auth %>">
+        <span class="fa fa-trash"></span>
+    </a>
 </div>
